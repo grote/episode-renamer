@@ -35,8 +35,7 @@ def get_page(page_url):
     try:
         return urllib2.urlopen(page_url).read()
     except urllib2.HTTPError, error:
-        print "An HTTP error occurred, HTTP code %s." % error.code
-        sys.exit()
+        raise RuntimeError("An HTTP error occurred, HTTP code %s." % error.code)
 
 def search_show(name, site):
     """Search Google for the page best matching the given show name."""
@@ -59,8 +58,7 @@ def parse_imdbapi(show_id, options):
     import simplejson 
     results = simplejson.loads(urllib2.urlopen("http://imdbapi.poromenos.org/json/?name=%s" % urllib.quote(show_id)).read())
     if results == None or "shows" in results:
-        print "Show not found."
-        sys.exit()
+        raise RuntimeError("Show not found.")
     show = Show(results.keys()[0])
     for episode in results[show.title]["episodes"]:
         show.episodes[(episode["season"], episode["number"])] = {"title": episode["name"]}
@@ -127,8 +125,7 @@ def parse_epguides(show_id, options):
     try:
         show.title = re.search("""<h1><a href="http://.*?">(.*?)</a></h1>""", page).groups()[0]
     except AttributeError:
-        print "Could not find show title, cannot continue."
-        sys.exit()
+        raise RuntimeError("Could not find show title, cannot continue.")
     episodes = re.findall("\d+. +(?P<season>\d+) *\- *(?P<episode>\d+).*?<a.*?>(?P<name>.*?)</a>", page)
     for season, episode, name in episodes:
         show.episodes[(int(season), int(episode))] = {"title": name}
@@ -283,4 +280,8 @@ def main():
     print "Done."
 
 if __name__ == "__main__":
-    main()
+	try:
+		main()
+	except RuntimeError, e:
+		sys.stderr.write('ERROR: %s\n' % str(e))
+		sys.exit(1)
