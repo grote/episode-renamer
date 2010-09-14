@@ -161,10 +161,12 @@ def parse_filename(show, filename, file_mask):
     
     return new_filename, info_dictionary
 
-def rename_files(show, file_mask, preview=False, use_ap=False):
-    for filename in os.listdir("."):
+def rename_files(show, files, file_mask, preview=False, use_ap=False):
+    new_filenames = {}
+    for filename in files:
         try:
             new_filename, info_dictionary = parse_filename(show, filename, file_mask)
+            new_filenames[filename] = new_filename
         except:
             print 'Episode name for "%s" not found.' % filename
             continue
@@ -220,6 +222,7 @@ def rename_files(show, file_mask, preview=False, use_ap=False):
                     os.rename(filename, new_filename)
                 except:
                     print "There was an error while renaming the file."
+    return new_filenames
 
 def main():
     parser = optparse.OptionParser(usage="%prog [options] <show id from the URL>", version="Episode renamer %s\nThis program is released under the GNU GPL." % VERSION)
@@ -276,7 +279,7 @@ def main():
         parser = parse_imdbapi
 
     show = parser(arguments[0], options)
-    rename_files(show, options.mask, options.preview, options.use_atomic_parsley)
+    rename_files(show, os.listdir("."), options.mask, options.preview, options.use_atomic_parsley)
     print "Done."
 
 if __name__ == "__main__":
