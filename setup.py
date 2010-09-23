@@ -13,7 +13,8 @@ setup(
         'Programming Language :: Python',
         'Topic :: Multimedia :: Video',
     ],
-    install_requires=["BeautifulSoup==3.0.8.1",
+#   install_requires=["BeautifulSoup==3.0.8.1",
+    install_requires=[
                       "simplejson>=2.0.9"],
     entry_points = {
         'console_scripts':[
